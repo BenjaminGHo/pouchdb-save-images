@@ -1,9 +1,56 @@
+Username to save image:
+<input type="text" id="name"/>
+<br/><br/>
+
+<input type="file" id="fileName">
+<br/><br/>
+
+<button onclick="save()">Save</button>
+<br/><br/><br/><br/><br/><br/>
+
+Which username's image do you want so see?
+<input type="text" id="getUserPicture"/>
+<br/><br/>
+
+<button onclick="retrieve()">Retrieve</button>
+<div id="imageLocation"></div>
+
 <script src="pouchdb-7.1.1.js"></script>
-
-<input type="file">
-
 <script>
-var db = new PouchDB('http://localhost:5985/kittens');
+  var db = new PouchDB('http://localhost:5985/kittens');
+
+  function save() {
+    var file = document.getElementById("fileName").files[0]; // file is a Blob
+    var name = document.getElementById("name").value;
+
+    db.put({
+      _id: name,
+      _attachments: {
+        "testing.jpg": {
+          content_type: 'image/jpg',
+          data: file
+        }
+      }
+    }).then(function (response){
+      console.log("saved! " + JSON.stringify(response));
+    }).catch(function (err) {
+      console.log(err);
+    });
+  };
+
+  function retrieve() {
+    var name = document.getElementById("getUserPicture").value;
+    var blob = db.getAttachment(name, 'testing.jpg').then(function(blob) {
+    var url = URL.createObjectURL(blob);
+      var img = document.createElement('img');
+      img.src = url;
+      document.getElementById("imageLocation").innerHTML = "";
+      document.getElementById("imageLocation").appendChild(img);
+      //document.body.appendChild(img);
+    }).catch(function (err) {
+      console.log(err);
+    });
+  }
 
 /*
 db.info().then(function (info) {
@@ -66,36 +113,7 @@ db.put({
   console.log(err);
 });*/
 
-/*
-var input = document.querySelector('input');
-input.addEventListener('change', function () {
-  var file = input.files[0]; // file is a Blob
-  console.log(file);
-  db.put({
-    _id: 'mydoc3',
-    _attachments: {
-      "testing.jpg": {
-        content_type: 'image/jpg',
-        data: file
-      }
-    }
-  }).catch(function (err) {
-    console.log(err);
-  });
-});*/
-
-var blob = db.getAttachment('mydoc3', 'testing.jpg').then(function(blob) {
-var url = URL.createObjectURL(blob);
-  var img = document.createElement('img');
-  img.src = url;
-  document.body.appendChild(img);
-}).catch(function (err) {
-  console.log(err);
-});
-
 
 </script>
-
-
 
 <pre id="display"></pre>
