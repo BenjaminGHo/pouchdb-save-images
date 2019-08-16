@@ -15,9 +15,40 @@ Which username's image do you want so see?
 <button onclick="retrieve()">Retrieve</button>
 <div id="imageLocation"></div>
 
+<br/><br/>
+Gallery<br/>
+<div id="gallery"></div>
+
+
 <script src="pouchdb-7.1.1.js"></script>
 <script>
   var db = new PouchDB('http://localhost:5985/kittens');
+
+  loadPictures(db);
+
+  function loadPictures() {
+    db.allDocs().then(function (doc) {
+      var allRows = doc.rows;
+      console.log(allRows);
+      for (i = 0; i < allRows.length; i++)
+      {
+
+        var keyName = allRows[i].key;
+        console.log(keyName);
+        var blob = db.getAttachment(keyName, 'testing.jpg').then(function(blob) {
+        var url = URL.createObjectURL(blob);
+        var img = document.createElement('img');
+          img.src = url;
+          img.setAttribute('width', '200px');
+          img.setAttribute('width', '200px');
+          img.setAttribute('title', url);
+          document.getElementById("gallery").appendChild(img);
+          document.getElementById("gallery").appendChild(document.createElement('br'));
+        });
+      }
+  });
+  }
+
 
   function save() {
     var file = document.getElementById("fileName").files[0]; // file is a Blob
